@@ -49,6 +49,7 @@
             height: 240px;
             flex: 1 1 0;
             min-width: 28px;
+            position: relative;
             background-color: white;
             border: 1px solid black;
             box-sizing: border-box;
@@ -71,6 +72,7 @@
             height: 140px;
             width: 24px;
             flex: 0 0 24px;
+            position: relative;
             background-color: black;
             border: 1px solid black;
             margin: 0 -13px;
@@ -90,16 +92,49 @@
             transform: translateY(2px);
         }
 
-        @media (max-width: 480px) {
-            .whiteKey {
-                min-width: 22px;
-            }
+        /* labels */
+        .label {
+            position: absolute;
+            bottom: 6px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 10px;
+            pointer-events: none;
+            user-select: none;
+        }
 
-            .blackKey {
-                width: 20px;
-                flex: 0 0 20px;
-                margin: 0 -10px;
-            }
+        .whiteKey .label {
+            position: absolute;  
+            bottom: 4px;         
+            left: 0;
+            right: 0;
+            text-align: center;   
+            font-size: 10px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .blackKey .label {
+            position: absolute;  
+            bottom: 4px;         
+            left: 0;
+            right: 0;
+            text-align: center;   
+            font-size: 10px;
+            pointer-events: none;
+            user-select: none;
+            color: white;
+            text-shadow: 0 0 2px #000;
+            
+        }
+
+        @media (max-width: 480px) {
+            .whiteKey { min-width: 22px; }
+
+            .blackKey { width: 20px; flex: 0 0 20px; margin: 0 -10px;}
+
+            .label { font-size: 9px; }
         }
     </style>
 </head>
@@ -107,67 +142,79 @@
 <body>
     <div id="keyboard">
         <div id="keypad">
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="blackKey"></div>
-            <div class="whiteKey"></div>
-            <div class="whiteKey"></div>
+            <!-- octave pattern repeated 5 times (C C# D Eb E F F# G G# A Bb B), then final C to make 61 keys -->
+            <!-- octave 1 -->
+            <div class="whiteKey"><span class="label">C</span></div>
+            <div class="blackKey"><span class="label">C#</span></div>
+            <div class="whiteKey"><span class="label">D</span></div>
+            <div class="blackKey"><span class="label">Eb</span></div>
+            <div class="whiteKey"><span class="label">E</span></div>
+            <div class="whiteKey"><span class="label">F</span></div>
+            <div class="blackKey"><span class="label">F#</span></div>
+            <div class="whiteKey"><span class="label">G</span></div>
+            <div class="blackKey"><span class="label">G#</span></div>
+            <div class="whiteKey"><span class="label">A</span></div>
+            <div class="blackKey"><span class="label">Bb</span></div>
+            <div class="whiteKey"><span class="label">B</span></div>
+
+            <!-- octave 2 -->
+            <div class="whiteKey"><span class="label">C</span></div>
+            <div class="blackKey"><span class="label">C#</span></div>
+            <div class="whiteKey"><span class="label">D</span></div>
+            <div class="blackKey"><span class="label">Eb</span></div>
+            <div class="whiteKey"><span class="label">E</span></div>
+            <div class="whiteKey"><span class="label">F</span></div>
+            <div class="blackKey"><span class="label">F#</span></div>
+            <div class="whiteKey"><span class="label">G</span></div>
+            <div class="blackKey"><span class="label">G#</span></div>
+            <div class="whiteKey"><span class="label">A</span></div>
+            <div class="blackKey"><span class="label">Bb</span></div>
+            <div class="whiteKey"><span class="label">B</span></div>
+
+            <!-- octave 3 -->
+            <div class="whiteKey"><span class="label">C</span></div>
+            <div class="blackKey"><span class="label">C#</span></div>
+            <div class="whiteKey"><span class="label">D</span></div>
+            <div class="blackKey"><span class="label">Eb</span></div>
+            <div class="whiteKey"><span class="label">E</span></div>
+            <div class="whiteKey"><span class="label">F</span></div>
+            <div class="blackKey"><span class="label">F#</span></div>
+            <div class="whiteKey"><span class="label">G</span></div>
+            <div class="blackKey"><span class="label">G#</span></div>
+            <div class="whiteKey"><span class="label">A</span></div>
+            <div class="blackKey"><span class="label">Bb</span></div>
+            <div class="whiteKey"><span class="label">B</span></div>
+
+            <!-- octave 4 -->
+            <div class="whiteKey"><span class="label">C</span></div>
+            <div class="blackKey"><span class="label">C#</span></div>
+            <div class="whiteKey"><span class="label">D</span></div>
+            <div class="blackKey"><span class="label">Eb</span></div>
+            <div class="whiteKey"><span class="label">E</span></div>
+            <div class="whiteKey"><span class="label">F</span></div>
+            <div class="blackKey"><span class="label">F#</span></div>
+            <div class="whiteKey"><span class="label">G</span></div>
+            <div class="blackKey"><span class="label">G#</span></div>
+            <div class="whiteKey"><span class="label">A</span></div>
+            <div class="blackKey"><span class="label">Bb</span></div>
+            <div class="whiteKey"><span class="label">B</span></div>
+
+            <!-- octave 5 -->
+            <div class="whiteKey"><span class="label">C</span></div>
+            <div class="blackKey"><span class="label">C#</span></div>
+            <div class="whiteKey"><span class="label">D</span></div>
+            <div class="blackKey"><span class="label">Eb</span></div>
+            <div class="whiteKey"><span class="label">E</span></div>
+            <div class="whiteKey"><span class="label">F</span></div>
+            <div class="blackKey"><span class="label">F#</span></div>
+            <div class="whiteKey"><span class="label">G</span></div>
+            <div class="blackKey"><span class="label">G#</span></div>
+            <div class="whiteKey"><span class="label">A</span></div>
+            <div class="blackKey"><span class="label">Bb</span></div>
+            <div class="whiteKey"><span class="label">B</span></div>
+
+            <!-- final key to reach 61 keys -->
+            <div class="whiteKey"><span class="label">C</span></div>
         </div>
     </div>
 </body>
