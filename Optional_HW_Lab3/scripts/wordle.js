@@ -7,6 +7,9 @@ window.onload = function () {
 
     let errorMessage = document.getElementById('errorMessage');
 
+    let newGameButton = document.getElementById('newGameButton');
+
+
     for (let i = 0; i < 6; i++) {
         let row = this.document.createElement('div');
         row.classList.add('row');
@@ -24,14 +27,30 @@ window.onload = function () {
     let tries = 0;
     let gameOver = false;
 
+    function startNewGame() {
+        document.querySelectorAll('.cell').forEach(cell => cell.textContent = '');
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.classList.remove('green', 'yellow', 'red');
+        });
+
+        word = wordList[Math.floor(Math.random() * wordList.length)];
+
+        tries = 0;
+        gameOver = false;
+
+        newGameButton.style.display = 'none';
+
+        guessInput.value = '';
+        errorMessage.textContent = '';
+    }
+
     guessButton.addEventListener('click', function () {
-        if (gameOver == true)
-        {
+        if (gameOver == true) {
             alert("Game is already over");
             return;
         }
 
-        let guess = guessInput.value;
+        let guess = guessInput.value.trim().toLowerCase();
 
         if (guess.length !== 5) {
             errorMessage.textContent = "Guess must be exactly 5 letters!";
@@ -40,47 +59,45 @@ window.onload = function () {
             errorMessage.textContent = "";
         }
 
-        for (let i = 0; i < 5; i++) 
-        {
+        for (let i = 0; i < 5; i++) {
             let currentCell = document.querySelector(
                 `[data-row="${tries}"][data-column="${i}"]`
             );
             let currentLetter = document.createTextNode(guess[i]);
             currentCell.append(currentLetter);
 
-            if (guess[i] == word[i]) 
-            {
+            if (guess[i] == word[i]) {
                 //green cell, letter on right position
                 currentCell.classList.add('green');
             }
-            else
-            {
-                if (word.indexOf(guess[i]) < 0)
-                {
+            else {
+                if (word.indexOf(guess[i]) < 0) {
                     //red cell, letter not found
                     currentCell.classList.add('red');
                 }
-                else
-                {
+                else {
                     //yellow cell
                     currentCell.classList.add('yellow');
                 }
             }
         }
-        if (word == guess)
-        {
+        if (word == guess) {
             alert("You won");
             gameOver = true;
             // guessButton.setAttribute('disabled', 'disabled');
+            newGameButton.style.display = 'block';
             return;
         };
-        if (tries == 5)
-        {
+        if (tries == 5) {
             alert("You lost");
             gameOver = true;
+            newGameButton.style.display = 'block';
             return;
         }
 
         tries++;
     })
-}
+
+    newGameButton.addEventListener('click', startNewGame);
+    
+};
