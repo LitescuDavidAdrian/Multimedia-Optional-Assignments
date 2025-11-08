@@ -1,4 +1,6 @@
 window.onload = function () {
+    let wordList = ["table", "chair", "piano", "mouse", "house", "plant", "brain", "cloud", "beach", "fruit"];
+    let word = wordList[Math.floor(Math.random() * wordList.length)];
     let board = document.getElementById('board');
     let guessButton = this.document.getElementById('guessButton');
     let guessInput = this.document.getElementById('guessInput');
@@ -17,7 +19,6 @@ window.onload = function () {
         }
     }
 
-    let word = 'media';
     let tries = 0;
     let gameOver = false;
 
