@@ -133,8 +133,8 @@ function setupModal(albums) {
             html = `<div class="mb-2 d-flex justify-content-between align-items-center">
                 <div class="fw-semibold">${album.artist} — ${albumTitleText}</div>
                 <div>
-                  <a href="${firstTrackUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-sm me-2">Play on Spotify</a>
-                  <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close Tracklist</button>
+                  <a href="${firstTrackUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-sm me-2">🎧 Play on Spotify</a>
+                  <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close Album Tracklist</button>
                 </div>
               </div>` + html;
 
