@@ -1,3 +1,4 @@
+// el = element builder
 function el(tag, opts = {}) {
     const e = document.createElement(tag);
     if (opts.class) e.className = opts.class;
@@ -6,6 +7,8 @@ function el(tag, opts = {}) {
     if (opts.attrs) Object.entries(opts.attrs || {}).forEach(([k, v]) => e.setAttribute(k, v));
     return e;
 }
+
+let ALL_ALBUMS = [];
 
 async function loadAlbums() {
     const row = document.getElementById("albumsRow");
@@ -21,29 +24,40 @@ async function loadAlbums() {
         const albums = Array.isArray(data) ? data : (data.albums || []);
         if (!albums.length) {
             console.warn("[DEBUG] No albums in JSON!");
+            row.innerHTML = `<div class="col-12"><div class="alert alert-warning">No albums found in ${jsonUrl}.</div></div>`;
             return;
         }
 
-        renderAlbums(albums, row, false);
-        setupModal(albums);
+        ALL_ALBUMS = albums.slice();
+
+        renderAlbums(ALL_ALBUMS, row);
+        setupModal();
+
+        setupSearch();
     } catch (err) {
         console.error("[ERROR] Could not load library.json:", err);
+        row.innerHTML = `<div class="col-12"><div class="alert alert-danger">Error loading albums: ${err.message}</div></div>`;
     }
 }
 
-function renderAlbums(list, row, fromFallback = false) {
+function renderAlbums(list, row) {
     row.innerHTML = "";
     list.forEach(album => {
         const col = el("div", { class: "col-xl-2 col-md-3 col-sm-6 col-12 mb-4" });
         const card = el("div", { class: "card h-100 shadow-sm" });
 
+        const thumbnailPath = `assets/img/${album.thumbnail ?? ""}`;
         const img = el("img", {
             class: "album-img card-img-top",
-            attrs: { src: `assets/img/${album.thumbnail}`, alt: `${album.artist} - ${album.title || album.album || ""}` }
+            attrs: {
+                src: thumbnailPath,
+                alt: `${album.artist ?? ""} - ${album.title ?? album.album ?? ""}`,
+                onerror: "this.onerror=null;this.src='assets/img/placeholder.png';"
+            }
         });
 
         const cardBody = el("div", { class: "card-body d-flex flex-column" });
-        const title = el("h5", { class: "card-title mb-1", text: album.artist || album.artistName || "" });
+        const title = el("h5", { class: "card-title mb-1", text: album.artist ?? album.artistName ?? "" });
         const subtitleText = album.title ?? album.album ?? "";
         const subtitle = el("p", { class: "card-text text-muted mb-3", text: subtitleText });
 
@@ -77,7 +91,7 @@ function renderAlbums(list, row, fromFallback = false) {
     });
 }
 
-function setupModal(albums) {
+function setupModal() {
     const modal = document.getElementById("exampleModal");
     const modalTitle = modal.querySelector(".modal-title");
     const modalBody = modal.querySelector(".modal-body");
@@ -87,7 +101,7 @@ function setupModal(albums) {
         if (!btn) return;
 
         const albumId = btn.getAttribute("data-album-id");
-        const album = albums.find(a => String(a.id ?? a.title ?? a.album) === String(albumId));
+        const album = ALL_ALBUMS.find(a => String(a.id ?? a.title ?? a.album) === String(albumId));
         if (!album) return;
 
         const albumTitleText = album.title ?? album.album ?? "";
@@ -114,40 +128,49 @@ function setupModal(albums) {
                 const url = track.url ?? "#";
 
                 html += `<tr>
-                    <td>${track.number ?? ""}</td>
-                    <td>
-                        <a href="${url}" 
-                        class="text-decoration-none fw-semibold link-primary"
-                        target="_blank" 
-                        rel="noopener noreferrer">
-                        ${escapeHtml(title)}
-                        </a>
-                    </td>
-                    <td>${escapeHtml(length)}</td>
-                </tr>`;
+                   <td>${track.number ?? ""}</td>
+                   <td>
+                     <a href="${url}" class="text-decoration-none fw-semibold link-primary" target="_blank" rel="noopener noreferrer">
+                       ${title}
+                     </a>
+                   </td>
+                   <td>${length}</td>
+                 </tr>`;
             });
 
             html += `</tbody></table></div>`;
 
-            const firstTrackUrl = tracks[0] ? (tracks[0].url ?? "#") : "#";
-            html = `<div class="mb-2 d-flex justify-content-between align-items-center">
-                <div class="fw-semibold">${album.artist} — ${albumTitleText}</div>
-                <div>
-                  <a href="${firstTrackUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-sm me-2">🎧 Play on Spotify</a>
-                  <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close Album Tracklist</button>
-                </div>
-              </div>` + html;
-
             modalBody.innerHTML = html;
+
+            setTimeout(() => {
+                const titleEl = modal.querySelector(".modal-title");
+                if (titleEl) titleEl.focus();
+            }, 120);
         } else {
             modalBody.innerHTML = `<p>No tracks available.</p>`;
         }
     });
 }
 
-function escapeHtml(str) {
-    if (typeof str !== "string") return "";
-    return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+function setupSearch() {
+    const input = document.getElementById("searchInput");
+    const row = document.getElementById("albumsRow");
+
+    input.addEventListener("input", function (e) {
+        const q = (e.target.value || "").trim().toLowerCase();
+        if (!q) {
+            renderAlbums(ALL_ALBUMS, row);
+            return;
+        }
+
+        const filtered = ALL_ALBUMS.filter(album => {
+            const artist = (album.artist ?? "").toString().toLowerCase();
+            const title = (album.title ?? album.album ?? "").toString().toLowerCase();
+            return artist.includes(q) || title.includes(q);
+        });
+
+        renderAlbums(filtered, row);
+    });
 }
 
 document.addEventListener("DOMContentLoaded", loadAlbums);

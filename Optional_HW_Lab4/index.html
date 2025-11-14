@@ -14,9 +14,16 @@
 
 <body>
     <div class="container py-4">
-        <header class="mb-4">
+        <header class="mb-3">
             <h1 class="h3">Music Library</h1>
         </header>
+
+        <div class="row mb-3">
+            <div class="col-12 col-md-6">
+                <input id="searchInput" type="search" class="form-control" placeholder="Search by artist or album..."
+                    aria-label="Search albums">
+            </div>
+        </div>
 
         <div id="albumsRow" class="row"></div>
     </div>
@@ -28,11 +35,15 @@
                     <h1 class="modal-title fs-5" id="exampleModalLabel" tabindex="-1">Modal title</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+
                 <div class="modal-body">
                     ...
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="closeAlbumBtn" type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+                        Close Album Tracklist
+                    </button>
                 </div>
             </div>
         </div>
