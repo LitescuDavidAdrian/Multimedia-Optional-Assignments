@@ -32,8 +32,9 @@ async function loadAlbums() {
 
         renderAlbums(ALL_ALBUMS, row);
         setupModal();
-
         setupSearch();
+        setupSort();
+
     } catch (err) {
         console.error("[ERROR] Could not load library.json:", err);
         row.innerHTML = `<div class="col-12"><div class="alert alert-danger">Error loading albums: ${err.message}</div></div>`;
@@ -182,3 +183,35 @@ function setupSearch() {
 }
 
 document.addEventListener("DOMContentLoaded", loadAlbums);
+
+function setupSort() {
+    const select = document.getElementById("sortSelect");
+    const row = document.getElementById("albumsRow");
+
+    select.addEventListener("change", function (e) {
+        const val = e.target.value;
+
+        // make a copy of ALL_ALBUMS for sorting
+        let sorted = ALL_ALBUMS.slice();
+
+        if (val === "artist-asc") {
+            sorted.sort((a, b) => (a.artist ?? "").localeCompare(b.artist ?? ""));
+        } else if (val === "album-asc") {
+            sorted.sort((a, b) => ((a.title ?? a.album ?? "").localeCompare(b.title ?? b.album ?? "")));
+        } else if (val === "tracks-asc") {
+            sorted.sort((a, b) => {
+                const aCount = Array.isArray(a.tracklist) ? a.tracklist.length : Array.isArray(a.tracks) ? a.tracks.length : 1;
+                const bCount = Array.isArray(b.tracklist) ? b.tracklist.length : Array.isArray(b.tracks) ? b.tracks.length : 1;
+                return aCount - bCount;
+            });
+        } else if (val === "tracks-desc") {
+            sorted.sort((a, b) => {
+                const aCount = Array.isArray(a.tracklist) ? a.tracklist.length : Array.isArray(a.tracks) ? a.tracks.length : 1;
+                const bCount = Array.isArray(b.tracklist) ? b.tracklist.length : Array.isArray(b.tracks) ? b.tracks.length : 1;
+                return bCount - aCount;
+            });
+        }
+
+        renderAlbums(sorted, row);
+    });
+}

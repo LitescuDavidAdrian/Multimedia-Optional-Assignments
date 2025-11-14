@@ -23,7 +23,16 @@
                 <input id="searchInput" type="search" class="form-control" placeholder="Search by artist or album..."
                     aria-label="Search albums">
             </div>
+            <div class="col-12 col-md-6 text-md-end mt-2 mt-md-0">
+                <select id="sortSelect" class="form-select w-auto d-inline-block">
+                    <option value="artist-asc">Sort by Artist (A-Z)</option>
+                    <option value="album-asc">Sort by Album (A-Z)</option>
+                    <option value="tracks-asc">Sort by Tracks (ascending)</option>
+                    <option value="tracks-desc">Sort by Tracks (descending)</option>
+                </select>
+            </div>
         </div>
+
 
         <div id="albumsRow" class="row"></div>
     </div>
@@ -41,7 +50,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button id="closeAlbumBtn" type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+                    <button id="closeAlbumBtn" type="button" class="btn btn-outline-secondary btn-sm"
+                        data-bs-dismiss="modal">
                         Close Album Tracklist
                     </button>
                 </div>
