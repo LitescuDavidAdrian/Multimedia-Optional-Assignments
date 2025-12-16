@@ -1,13 +1,28 @@
 body {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     height: 100vh;
     margin: 0;
+    padding-top: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
+
+.container {
+    max-width: 980px;
+    width: 100%;
+    padding-bottom: 20px;
+} 
 
 #chartCanvas {
     border: 1px solid black;
+    max-width: calc(100vw - 40px);
+    max-height: calc(100vh - 160px);
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
 
 #tooltip {
