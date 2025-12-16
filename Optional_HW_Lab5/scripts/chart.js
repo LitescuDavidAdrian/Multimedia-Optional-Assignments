@@ -75,10 +75,67 @@ window.onload = function () {
 
     // Chart type state
     let chartType = 'line'; // 'line' | 'area' | 'bar' | 'scatter'
+    let themeLineWidth = 4; // dynamic line width controlled by theme
+
+    // Themes (css vars and series colors)
+    const themes = {
+        light: {
+            css: {
+                '--bg-color': '#f8f9fa',
+                '--panel-bg': '#ffffff',
+                '--text-color': '#212529',
+                '--muted-color': '#555',
+                '--grid-color': '#e0e0e0',
+                '--canvas-bg': '#ffffff',
+                '--tooltip-bg': 'rgba(255,255,255,0.95)'
+            },
+            seriesColors: ['green', 'red', 'blue'],
+            lineWidth: 4
+        },
+        dark: {
+            css: {
+                '--bg-color': '#171717',
+                '--panel-bg': '#222',
+                '--text-color': '#eee',
+                '--muted-color': '#ddd',
+                '--grid-color': '#2e2e2e',
+                '--canvas-bg': '#0f0f0f',
+                '--tooltip-bg': 'rgba(30,30,30,0.95)'
+            },
+            seriesColors: ['#7fc97f', '#f768a1', '#80b1d3'],
+            lineWidth: 4
+        },
+        highcontrast: {
+            css: {
+                '--bg-color': '#ffffff',
+                '--panel-bg': '#000000',
+                '--text-color': '#ffffff',
+                '--muted-color': '#ffffff',
+                '--grid-color': '#000000',
+                '--canvas-bg': '#ffffff',
+                '--tooltip-bg': '#ffffff'
+            },
+            seriesColors: ['#ff7f00', '#1f78b4', '#33a02c'],
+            lineWidth: 6
+        }
+    };
+
+    function applyTheme(name) {
+        const t = themes[name] || themes.light;
+        Object.keys(t.css).forEach(k => document.documentElement.style.setProperty(k, t.css[k]));
+        for (let i = 0; i < series.length; i++) series[i].color = t.seriesColors[i % t.seriesColors.length];
+        themeLineWidth = t.lineWidth || 4;
+        ['light', 'dark', 'highcontrast'].forEach(n => {
+            const btn = document.getElementById('theme-' + (n === 'highcontrast' ? 'highcontrast' : n));
+            if (btn) btn.classList.toggle('active', n === name);
+        });
+        localStorage.setItem('chartTheme', name);
+        draw();
+    }
 
     function renderLine(s) {
         ctx.strokeStyle = s.color;
-        ctx.lineWidth = 4;
+        ctx.lineWidth = themeLineWidth || 4;
         ctx.beginPath();
         ctx.moveTo(0, height - s.data[0]);
 
@@ -129,7 +186,7 @@ window.onload = function () {
         ctx.globalAlpha = 1;
 
         ctx.strokeStyle = s.color;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = Math.max(2, (themeLineWidth - 1));
         ctx.beginPath();
         ctx.moveTo(0, height - s.data[0]);
         for (let i = 1; i < s.data.length; i++) {
@@ -359,7 +416,6 @@ window.onload = function () {
             ctx.strokeStyle = '#fff';
             ctx.stroke();
         }
-        // update stats panel each frame
         updateStatsPanel();
     }
 
@@ -483,5 +539,44 @@ window.onload = function () {
         if (btn) btn.addEventListener('click', () => setChartType(t));
     });
 
+    ['light','dark','highcontrast'].forEach(t => {
+        const btn = document.getElementById('theme-' + (t === 'highcontrast' ? 'highcontrast' : t));
+        if (btn) btn.addEventListener('click', () => applyTheme(t));
+    });
+    const savedTheme = localStorage.getItem('chartTheme') || 'light';
+    applyTheme(savedTheme);
+
     setChartType(chartType);
+
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function () {
+            const tooltip = document.getElementById('tooltip');
+            const wasVisible = tooltip && tooltip.style.display !== 'none';
+            if (tooltip) tooltip.style.display = 'none';
+
+            draw();
+
+            const tmp = document.createElement('canvas');
+            tmp.width = canvas.width;
+            tmp.height = canvas.height;
+            const tctx = tmp.getContext('2d');
+            const rootStyle = getComputedStyle(document.documentElement);
+            const bg = (rootStyle.getPropertyValue('--canvas-bg') || rootStyle.getPropertyValue('--bg-color') || '#ffffff').trim();
+            tctx.fillStyle = bg;
+            tctx.fillRect(0, 0, tmp.width, tmp.height);
+            tctx.drawImage(canvas, 0, 0);
+
+            const dataURL = tmp.toDataURL('image/png');
+            const link = document.createElement('a');
+            const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+            link.href = dataURL;
+            link.download = `chart-${chartType}-${ts}.png`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            if (tooltip && wasVisible) tooltip.style.display = 'block';
+        });
+    }
 };

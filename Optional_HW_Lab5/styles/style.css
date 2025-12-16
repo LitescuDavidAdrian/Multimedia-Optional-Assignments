@@ -1,3 +1,13 @@
+:root {
+    --bg-color: #f8f9fa;
+    --panel-bg: #ffffff;
+    --text-color: #212529;
+    --muted-color: #555; 
+    --grid-color: #e0e0e0;
+    --canvas-bg: #ffffff;
+    --tooltip-bg: rgba(255,255,255,0.95);
+}
+
 body {
     display: flex;
     align-items: flex-start;
@@ -7,6 +17,8 @@ body {
     padding-top: 20px;
     box-sizing: border-box;
     overflow-y: auto;
+    background: var(--bg-color);
+    color: var(--text-color);
 }
 
 .container {
@@ -26,12 +38,15 @@ body {
 }
 
 #tooltip {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid #ccc;
+    background: var(--tooltip-bg);
+    border: 1px solid var(--grid-color);
     min-width: 140px;
     font-size: 14px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
+
+.btn-group[aria-label="Theme"] { margin-top: 6px; }
+.btn-group[aria-label="Theme"] .btn { margin-right: 6px; }
 
 #tooltip .card-body {
     padding: 6px 8px;
@@ -45,17 +60,21 @@ body {
     margin-top: 6px;
 }
 
+.mt-3 .btn { margin-right: 6px; }
+
 .area-fill {
     opacity: 0.18;
 }
 
-#statsPanel { max-width: 540px; margin: 12px auto; }
+#statsPanel { max-width: 540px; margin: 12px auto; background: var(--panel-bg); color: var(--text-color); }
+#statsPanel .card-title { color: var(--text-color); }
+#statsPanel .series-row, #statsPanel .series-name, #statsPanel .stat-values { color: var(--text-color); }
 #stats-content { font-size: 13px; }
 .series-row { display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border-bottom:1px solid #f0f0f0; cursor: pointer; }
 .series-row:last-child { border-bottom: none; }
 .series-badge { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:8px; }
 .series-name { font-weight:600; margin-right:8px; }
-.stat-values small { color:#555; }
+.stat-values small { color: var(--muted-color); }
 .series-row.highlight { background: rgba(0,0,0,0.03); }
 .series-row .stat-values { min-width: 170px; text-align:right; }
 #statsPanel .card-body { padding:8px; }
