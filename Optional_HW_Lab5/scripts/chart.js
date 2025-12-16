@@ -1,52 +1,85 @@
 window.onload = function () {
-    let canvas = document.getElementById('chartCanvas');
-    let context = canvas.getContext('2d');
 
-    let width = canvas.width;
-    let height = canvas.height;
+    const canvas = document.getElementById('chartCanvas');
+    const ctx = canvas.getContext('2d');
 
-    let xIncrement = 150;
-    let yIncrement = 100;
-    let valueIncrement = 20;
-    let textOffset = 5;
+    const width = canvas.width;
+    const height = canvas.height;
 
-    let series = [
+    const xIncrement = 150;
+    const yIncrement = 100;
+    const valueIncrement = 20;
+    const textOffset = 5;
+
+    let intervalId;
+    let isRunning = true;
+    let updateSpeed = 1000;
+    let maxValue = height;
+    let showGrid = true;
+
+    const minDelay = 200;   // fastest
+    const maxDelay = 2000; // slowest
+
+    const series = [
         { data: [], color: 'green' },
         { data: [], color: 'red' },
         { data: [], color: 'blue' }
     ];
 
+    /* ---------------- GRID ---------------- */
+
     function drawVerticalLines() {
-        context.strokeStyle = 'gray';
-        context.lineWidth = 1;
+        ctx.strokeStyle = 'gray';
+        ctx.lineWidth = 1;
 
         for (let i = 0; i < width; i += xIncrement) {
-            context.beginPath();
-            context.moveTo(i, 0);
-            context.lineTo(i, height);
-            context.stroke();
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, height);
+            ctx.stroke();
         }
     }
 
     function drawHorizontalLines() {
-        context.strokeStyle = 'gray';
-        context.lineWidth = 1;
+        ctx.strokeStyle = 'gray';
+        ctx.lineWidth = 1;
 
         for (let i = 0; i < height; i += yIncrement) {
-            context.beginPath();
-            context.moveTo(0, i);
-            context.lineTo(width, i);
-            context.stroke();
+            ctx.beginPath();
+            ctx.moveTo(0, i);
+            ctx.lineTo(width, i);
+            ctx.stroke();
         }
     }
 
+    /* ---------------- LABELS ---------------- */
+
+    function drawVerticalLabels() {
+        ctx.fillStyle = 'black';
+
+        for (let i = 0; i < height; i += yIncrement) {
+            let value = Math.round(maxValue - (i / height) * maxValue);
+            ctx.fillText(value, textOffset, i + 2 * textOffset);
+        }
+    }
+
+    function drawHorizontalLabels() {
+        ctx.fillStyle = 'black';
+
+        for (let i = 0; i < width; i += xIncrement) {
+            ctx.fillText(i, i + textOffset, height - textOffset);
+        }
+    }
+
+    /* ---------------- CHART ---------------- */
+
     function drawChart() {
         series.forEach(s => {
-            context.strokeStyle = s.color;
-            context.lineWidth = 4;
+            ctx.strokeStyle = s.color;
+            ctx.lineWidth = 4;
 
-            context.beginPath();
-            context.moveTo(0, height - s.data[0]);
+            ctx.beginPath();
+            ctx.moveTo(0, height - s.data[0]);
 
             for (let i = 1; i < s.data.length; i++) {
                 let xPrev = (i - 1) * valueIncrement;
@@ -57,33 +90,21 @@ window.onload = function () {
 
                 let controlX = (xPrev + xCurr) / 2;
 
-                context.bezierCurveTo(
+                ctx.bezierCurveTo(
                     controlX, yPrev,
                     controlX, yCurr,
                     xCurr, yCurr
                 );
             }
 
-            context.stroke();
+            ctx.stroke();
         });
     }
 
-    function drawVerticalLabels() {
-        context.fillStyle = 'black';
-        for (let i = 0; i < height; i += yIncrement) {
-            context.fillText(height - i, textOffset, i + 2 * textOffset);
-        }
-    }
-
-    function drawHorizontalLabels() {
-        context.fillStyle = 'black';
-        for (let i = 0; i < width; i += xIncrement) {
-            context.fillText(i, i + textOffset, height - textOffset);
-        }
-    }
+    /* ---------------- DATA ---------------- */
 
     function generateRandomNumber() {
-        return parseInt(Math.random() * height);
+        return Math.floor(Math.random() * maxValue);
     }
 
     function generateData() {
@@ -95,15 +116,6 @@ window.onload = function () {
         });
     }
 
-    function draw() {
-        context.clearRect(0, 0, width, height);
-        drawVerticalLines();
-        drawHorizontalLines();
-        drawVerticalLabels();
-        drawHorizontalLabels();
-        drawChart();
-    }
-
     function generateNewValue() {
         series.forEach(s => {
             s.data.push(generateRandomNumber());
@@ -111,11 +123,76 @@ window.onload = function () {
         });
     }
 
-    setInterval(function () {
-        generateNewValue();
-        draw();
-    }, 1000)
+    /* ---------------- RENDER ---------------- */
+
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        if (showGrid) {
+            drawVerticalLines();
+            drawHorizontalLines();
+        }
+
+        drawVerticalLabels();
+        drawHorizontalLabels();
+        drawChart();
+    }
+
+    /* ---------------- ANIMATION ---------------- */
+
+    function startAnimation() {
+        intervalId = setInterval(() => {
+            generateNewValue();
+            draw();
+        }, updateSpeed);
+    }
+
+    function stopAnimation() {
+        clearInterval(intervalId);
+    }
+
+    /* ---------------- INIT ---------------- */
 
     generateData();
     draw();
-}
+    startAnimation();
+
+    /* ---------------- CONTROLS ---------------- */
+
+    document.getElementById('toggleBtn').onclick = function () {
+        if (isRunning) {
+            stopAnimation();
+            this.textContent = 'Start';
+        } else {
+            startAnimation();
+            this.textContent = 'Pause';
+        }
+        isRunning = !isRunning;
+    };
+
+    document.getElementById('resetBtn').onclick = function () {
+        generateData();
+        draw();
+    };
+
+    document.getElementById('speedSlider').oninput = function () {
+        const speed = Number(this.value);
+
+        updateSpeed = maxDelay - ((speed - 1) / 9) * (maxDelay - minDelay);
+
+        if (isRunning) {
+            stopAnimation();
+            startAnimation();
+        }
+    };
+
+
+    document.getElementById('maxValueInput').onchange = function () {
+        maxValue = Number(this.value);
+    };
+
+    document.getElementById('gridToggle').onchange = function () {
+        showGrid = this.checked;
+        draw();
+    };
+};
