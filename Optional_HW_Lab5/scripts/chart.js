@@ -359,6 +359,55 @@ window.onload = function () {
             ctx.strokeStyle = '#fff';
             ctx.stroke();
         }
+        // update stats panel each frame
+        updateStatsPanel();
+    }
+
+    /* ---------------- STATISTICS ---------------- */
+    function computeStatsForSeries(s) {
+        if (!s || !s.data || s.data.length === 0) {
+            return { current: 0, min: 0, max: 0, avg: 0, trend: '→', trendClass: 'text-muted' };
+        }
+        const len = s.data.length;
+        const current = s.data[len - 1];
+        const prev = len >= 2 ? s.data[len - 2] : current;
+        const min = Math.min(...s.data);
+        const max = Math.max(...s.data);
+        const avg = Math.round(s.data.reduce((a, b) => a + b, 0) / len);
+        let trend = '→', trendClass = 'text-muted';
+        if (current > prev) { trend = '↑'; trendClass = 'text-success'; }
+        else if (current < prev) { trend = '↓'; trendClass = 'text-danger'; }
+        return { current, min, max, avg, trend, trendClass };
+    }
+
+    function updateStatsPanel() {
+        const container = document.getElementById('stats-content');
+        if (!container) return;
+        let html = '';
+        series.forEach((s, i) => {
+            const st = computeStatsForSeries(s);
+            const highlight = (hoveredSeries === i) ? 'highlight' : '';
+            html += `<div class="series-row ${highlight}" data-series="${i}">
+                <div style="display:flex; align-items:center;">
+                    <span class="series-badge" style="background:${s.color}"></span>
+                    <span class="series-name">Series ${i + 1}</span>
+                </div>
+                <div class="stat-values">
+                    <div>Current: <strong>${st.current}</strong> <span class="${st.trendClass}">${st.trend}</span></div>
+                    <div><small>min: ${st.min} • max: ${st.max} • avg: ${st.avg}</small></div>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+
+        container.querySelectorAll('.series-row').forEach(row => {
+            row.onclick = function () {
+                const idx = Number(this.getAttribute('data-series'));
+                hoveredSeries = idx;
+                hoveredIndex = series[idx].data.length - 1;
+                draw();
+            };
+        });
     }
 
     /* ---------------- ANIMATION ---------------- */

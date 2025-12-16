@@ -48,3 +48,14 @@ body {
 .area-fill {
     opacity: 0.18;
 }
+
+#statsPanel { max-width: 540px; margin: 12px auto; }
+#stats-content { font-size: 13px; }
+.series-row { display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border-bottom:1px solid #f0f0f0; cursor: pointer; }
+.series-row:last-child { border-bottom: none; }
+.series-badge { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:8px; }
+.series-name { font-weight:600; margin-right:8px; }
+.stat-values small { color:#555; }
+.series-row.highlight { background: rgba(0,0,0,0.03); }
+.series-row .stat-values { min-width: 170px; text-align:right; }
+#statsPanel .card-body { padding:8px; }
