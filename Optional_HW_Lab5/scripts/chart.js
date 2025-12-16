@@ -49,7 +49,19 @@ window.onload = function () {
             context.moveTo(0, height - s.data[0]);
 
             for (let i = 1; i < s.data.length; i++) {
-                context.lineTo(i * valueIncrement, height - s.data[i]);
+                let xPrev = (i - 1) * valueIncrement;
+                let yPrev = height - s.data[i - 1];
+
+                let xCurr = i * valueIncrement;
+                let yCurr = height - s.data[i];
+
+                let controlX = (xPrev + xCurr) / 2;
+
+                context.bezierCurveTo(
+                    controlX, yPrev,
+                    controlX, yCurr,
+                    xCurr, yCurr
+                );
             }
 
             context.stroke();
