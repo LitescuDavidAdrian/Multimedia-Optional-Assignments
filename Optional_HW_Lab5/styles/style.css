@@ -5,6 +5,7 @@ body {
     height: 100vh;
     margin: 0;
 }
+
 #chartCanvas {
     border: 1px solid black;
 }
@@ -14,7 +15,7 @@ body {
     border: 1px solid #ccc;
     min-width: 140px;
     font-size: 14px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 #tooltip .card-body {
@@ -23,4 +24,12 @@ body {
 
 #tooltip small {
     color: #555;
+}
+
+.btn-group {
+    margin-top: 6px;
+}
+
+.area-fill {
+    opacity: 0.18;
 }

@@ -73,32 +73,126 @@ window.onload = function () {
 
     /* ---------------- CHART ---------------- */
 
-    function drawChart() {
-        series.forEach(s => {
-            ctx.strokeStyle = s.color;
-            ctx.lineWidth = 4;
+    // Chart type state
+    let chartType = 'line'; // 'line' | 'area' | 'bar' | 'scatter'
 
-            ctx.beginPath();
-            ctx.moveTo(0, height - s.data[0]);
+    function renderLine(s) {
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(0, height - s.data[0]);
 
-            for (let i = 1; i < s.data.length; i++) {
-                let xPrev = (i - 1) * valueIncrement;
-                let yPrev = height - s.data[i - 1];
+        for (let i = 1; i < s.data.length; i++) {
+            let xPrev = (i - 1) * valueIncrement;
+            let yPrev = height - s.data[i - 1];
 
-                let xCurr = i * valueIncrement;
-                let yCurr = height - s.data[i];
+            let xCurr = i * valueIncrement;
+            let yCurr = height - s.data[i];
 
-                let controlX = (xPrev + xCurr) / 2;
+            let controlX = (xPrev + xCurr) / 2;
 
-                ctx.bezierCurveTo(
-                    controlX, yPrev,
-                    controlX, yCurr,
-                    xCurr, yCurr
-                );
+            ctx.bezierCurveTo(
+                controlX, yPrev,
+                controlX, yCurr,
+                xCurr, yCurr
+            );
+        }
+        ctx.stroke();
+    }
+
+    function renderArea(s) {
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.moveTo(0, height - s.data[0]);
+
+        for (let i = 1; i < s.data.length; i++) {
+            let xPrev = (i - 1) * valueIncrement;
+            let yPrev = height - s.data[i - 1];
+
+            let xCurr = i * valueIncrement;
+            let yCurr = height - s.data[i];
+
+            let controlX = (xPrev + xCurr) / 2;
+
+            ctx.bezierCurveTo(
+                controlX, yPrev,
+                controlX, yCurr,
+                xCurr, yCurr
+            );
+        }
+        ctx.lineTo((s.data.length - 1) * valueIncrement, height);
+        ctx.lineTo(0, height);
+        ctx.closePath();
+
+        ctx.globalAlpha = 0.18;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, height - s.data[0]);
+        for (let i = 1; i < s.data.length; i++) {
+            let xPrev = (i - 1) * valueIncrement;
+            let yPrev = height - s.data[i - 1];
+
+            let xCurr = i * valueIncrement;
+            let yCurr = height - s.data[i];
+
+            let controlX = (xPrev + xCurr) / 2;
+
+            ctx.bezierCurveTo(
+                controlX, yPrev,
+                controlX, yCurr,
+                xCurr, yCurr
+            );
+        }
+        ctx.stroke();
+    }
+
+    function renderBar(allSeries) {
+        const barBase = valueIncrement * 0.8; // total group width
+        const barWidth = barBase / allSeries.length;
+
+        for (let si = 0; si < allSeries.length; si++) {
+            const s = allSeries[si];
+            for (let i = 0; i < s.data.length; i++) {
+                const x = i * valueIncrement - barBase / 2 + si * barWidth + (valueIncrement / 2);
+                const y = height - s.data[i];
+                const h = s.data[i];
+
+                ctx.fillStyle = s.color;
+                ctx.fillRect(x - barWidth / 2, y, barWidth, h);
             }
+        }
+    }
 
-            ctx.stroke();
-        });
+    function renderScatter(s) {
+        ctx.fillStyle = s.color;
+        for (let i = 0; i < s.data.length; i++) {
+            const x = i * valueIncrement;
+            const y = height - s.data[i];
+            ctx.beginPath();
+            ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function drawChart() {
+        switch (chartType) {
+            case 'line':
+                series.forEach(renderLine);
+                break;
+            case 'area':
+                series.forEach(renderArea);
+                break;
+            case 'bar':
+                renderBar(series);
+                break;
+            case 'scatter':
+                series.forEach(renderScatter);
+                break;
+        }
     }
 
     /* ---------------- DATA ---------------- */
@@ -154,15 +248,23 @@ window.onload = function () {
         const idx = Math.round(mouseX / valueIncrement);
         let foundSeries = null;
         let minDist = Infinity;
-        let xCoord = idx * valueIncrement;
+        let foundX = null;
 
         series.forEach((s, si) => {
             if (idx >= 0 && idx < s.data.length) {
+                let xCoord = idx * valueIncrement;
+                if (chartType === 'bar') {
+                    const barBase = valueIncrement * 0.8;
+                    const barWidth = barBase / series.length;
+                    xCoord = idx * valueIncrement - barBase / 2 + si * barWidth + (valueIncrement / 2);
+                }
+
                 const yValue = height - s.data[idx];
                 const dist = Math.hypot(mouseX - xCoord, mouseY - yValue);
                 if (dist < minDist) {
                     minDist = dist;
                     foundSeries = si;
+                    foundX = xCoord;
                 }
             }
         });
@@ -173,7 +275,7 @@ window.onload = function () {
 
             const s = series[hoveredSeries];
             const value = s.data[hoveredIndex];
-            const pointX = hoveredIndex * valueIncrement;
+            const pointX = foundX !== null ? foundX : (hoveredIndex * valueIncrement);
             const pointY = height - value;
 
             showTooltip(pointX, pointY, `<strong style="color:${s.color}">Series ${hoveredSeries + 1}</strong><br>Value: <strong>${value}</strong><br><small>Index: ${hoveredIndex}</small>`);
@@ -210,7 +312,14 @@ window.onload = function () {
         if (hoveredIndex !== null && hoveredSeries !== null && mouseX !== null && mouseY !== null) {
             const s = series[hoveredSeries];
             const value = s.data[hoveredIndex];
-            const px = hoveredIndex * valueIncrement;
+            let px;
+            if (chartType === 'bar') {
+                const barBase = valueIncrement * 0.8;
+                const barWidth = barBase / series.length;
+                px = hoveredIndex * valueIncrement - barBase / 2 + hoveredSeries * barWidth + (valueIncrement / 2);
+            } else {
+                px = hoveredIndex * valueIncrement;
+            }
             const py = height - value;
             const dist = Math.hypot(mouseX - px, mouseY - py);
             if (dist > hoverThreshold) {
@@ -223,7 +332,14 @@ window.onload = function () {
         if (hoveredIndex !== null && hoveredSeries !== null) {
             const s = series[hoveredSeries];
             const value = s.data[hoveredIndex];
-            const x = hoveredIndex * valueIncrement;
+            let x;
+            if (chartType === 'bar') {
+                const barBase = valueIncrement * 0.8;
+                const barWidth = barBase / series.length;
+                x = hoveredIndex * valueIncrement - barBase / 2 + hoveredSeries * barWidth + (valueIncrement / 2);
+            } else {
+                x = hoveredIndex * valueIncrement;
+            }
             const y = height - value;
 
             ctx.save();
@@ -302,4 +418,21 @@ window.onload = function () {
         showGrid = this.checked;
         draw();
     };
+
+    function setChartType(type) {
+        chartType = type;
+        ['line', 'area', 'bar', 'scatter'].forEach(t => {
+            const btn = document.getElementById('type-' + t);
+            if (btn) btn.classList.toggle('active', t === type);
+        });
+        draw();
+    }
+
+    const typeButtons = ['line', 'area', 'bar', 'scatter'];
+    typeButtons.forEach(t => {
+        const btn = document.getElementById('type-' + t);
+        if (btn) btn.addEventListener('click', () => setChartType(t));
+    });
+
+    setChartType(chartType);
 };
