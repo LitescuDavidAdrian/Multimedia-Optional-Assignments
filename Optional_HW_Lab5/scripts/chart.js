@@ -1,4 +1,4 @@
-window.onload = function() {
+window.onload = function () {
     let canvas = document.getElementById('chartCanvas');
     let context = canvas.getContext('2d');
 
@@ -10,15 +10,17 @@ window.onload = function() {
     let valueIncrement = 20;
     let textOffset = 5;
 
-    let data = [];
+    let series = [
+        { data: [], color: 'green' },
+        { data: [], color: 'red' },
+        { data: [], color: 'blue' }
+    ];
 
-    function drawVerticalLines()
-    {
+    function drawVerticalLines() {
         context.strokeStyle = 'gray';
         context.lineWidth = 1;
-        
-        for(let i = 0; i< width; i += xIncrement)
-        {
+
+        for (let i = 0; i < width; i += xIncrement) {
             context.beginPath();
             context.moveTo(i, 0);
             context.lineTo(i, height);
@@ -26,13 +28,11 @@ window.onload = function() {
         }
     }
 
-    function drawHorizontalLines()
-    {
+    function drawHorizontalLines() {
         context.strokeStyle = 'gray';
         context.lineWidth = 1;
 
-        for (let i = 0; i < height; i += yIncrement)
-        {
+        for (let i = 0; i < height; i += yIncrement) {
             context.beginPath();
             context.moveTo(0, i);
             context.lineTo(width, i);
@@ -40,53 +40,50 @@ window.onload = function() {
         }
     }
 
-    function drawChart()
-    {
-        context.strokeStyle = 'green';
-        context.lineWidth = 5;
+    function drawChart() {
+        series.forEach(s => {
+            context.strokeStyle = s.color;
+            context.lineWidth = 4;
 
-        context.beginPath();
-        context.moveTo(0, height - data[0]);
+            context.beginPath();
+            context.moveTo(0, height - s.data[0]);
 
-        for (let i = 1; i < data.length; i++)
-        {
-            context.lineTo(i * valueIncrement, height - data[i]);
-        }
+            for (let i = 1; i < s.data.length; i++) {
+                context.lineTo(i * valueIncrement, height - s.data[i]);
+            }
 
-        context.stroke();
+            context.stroke();
+        });
     }
 
-    function drawVerticalLabels()
-    {
-        for (let i = 0; i < height; i += yIncrement)
-        {
-            context.strokeText(height - i, textOffset, i + 2 * textOffset);
-        }
-    }
-
-    function drawHorizontalLabels()
-    {
-        for (let i = 0; i < width; i+=xIncrement)
-        {
-            context.strokeText(i, i + textOffset, height - textOffset);
+    function drawVerticalLabels() {
+        context.fillStyle = 'black';
+        for (let i = 0; i < height; i += yIncrement) {
+            context.fillText(height - i, textOffset, i + 2 * textOffset);
         }
     }
 
-    function generateRandomNumber()
-    {
+    function drawHorizontalLabels() {
+        context.fillStyle = 'black';
+        for (let i = 0; i < width; i += xIncrement) {
+            context.fillText(i, i + textOffset, height - textOffset);
+        }
+    }
+
+    function generateRandomNumber() {
         return parseInt(Math.random() * height);
     }
 
-    function generateData()
-    {
-        for (let i = 0; i <= width; i+= valueIncrement)
-        {
-            data[i/valueIncrement] = generateRandomNumber();
-        }
+    function generateData() {
+        series.forEach(s => {
+            s.data = [];
+            for (let i = 0; i <= width; i += valueIncrement) {
+                s.data.push(generateRandomNumber());
+            }
+        });
     }
 
-    function draw()
-    {
+    function draw() {
         context.clearRect(0, 0, width, height);
         drawVerticalLines();
         drawHorizontalLines();
@@ -95,14 +92,14 @@ window.onload = function() {
         drawChart();
     }
 
-    function generateNewValue()
-    {
-        let newValue = generateRandomNumber();
-        data.push(newValue);
-        data.shift();
+    function generateNewValue() {
+        series.forEach(s => {
+            s.data.push(generateRandomNumber());
+            s.data.shift();
+        });
     }
 
-    setInterval(function() {
+    setInterval(function () {
         generateNewValue();
         draw();
     }, 1000)
